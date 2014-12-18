@@ -1,4 +1,26 @@
+#include <iostream>
+#include <cstring>
+//#include <stdio.h>
+
+using namespace std;
+
+void cls(){ for (int i = 0; i < 100; ++i) printf("\n"); }
+char *chooseWord(int diff);
+
+
+
 int main(){
+
+	/* SHIT STORM START */
+	char *stage[] = { "\n \n \n \n \n \n \n \n --------\0",
+		"\n |\n |\n |\n |\n |\n |\n |\n --------\0",
+		"\n ________\n |\n |\n |\n |\n |\n |\n |\n --------\0",
+		"\n ________\n |  /\n | /\n |/\n |\n |\n |\n |\n --------\0",
+		"\n ________\n |  /   |\n | /\n |/\n |\n |\n |\n |\n --------\0",
+		"\n ________\n |  /   |\n | /    o\n |/    /|\\ \n |      |\n |     / \\\n |\n |\n --------\0" };
+
+	/* SHIT STORM END */
+
 	bool running = true;
 	int diff = 1;
 	while (running){
@@ -16,7 +38,66 @@ int main(){
 		{
 		case 1:
 		{
-			// run game
+			// Preparing the game
+			char *secret = chooseWord(diff);
+			char uInput[12], usedch[26];
+			for (int i = 0; i < 26; ++i){
+				usedch[i] = '\0';
+			}
+
+			int p = 0;
+			for (p; p < strlen(secret); ++p){
+				uInput[p] = '_';
+			}
+			uInput[p] = '\0';
+			int hp = 0;
+
+			bool game = true;
+			
+			// Playing the game
+			while (game && hp < 7){
+				cls();
+				cout << stage[hp];
+				cout << endl;
+				
+				cout << "secret = " << secret << endl;
+
+				cout << "Used characters: ";
+
+				int elm = 0;
+				while (usedch[elm] != '\0' && elm < 25){
+					cout << usedch[elm] << " ";
+					++elm;
+				}
+				endl(cout);
+
+				cout << "Word: ";
+
+				int el = 0;
+				while (el < strlen(secret)){
+					cout << uInput[el] << " ";
+					++el;
+				}
+
+				endl(cout);
+				cout << "Guess: ";
+				char ch;
+				cin >> ch;
+
+				if (islower(ch)) ch = toupper(ch);
+				cout << "ch = " << ch << endl;
+
+				for (int i = 0; i < strlen(secret); ++i){
+					if (secret[i] == ch){
+						cout << "secret[" << i << "] = " << secret[i] << endl;
+						cout << "Found match!" << endl;
+						uInput[i] = ch;
+						cout << "uInput[" << i << "] = " << uInput[i] << endl;
+					}
+				}
+			}
+
+			
 			break;
 		}
 		case 2:
@@ -42,4 +123,27 @@ int main(){
 		}
 	}
 	return 0;
+}
+
+
+char *chooseWord(int diff){
+	switch (diff) {
+	case 1:
+	{
+		char *easy[] = { "GAME", "STAY", "MAKE", "CAKE", "PLANE", "ABORT", "ACTOR", "CHAIR", "CYCLE" };
+		return easy[rand() % sizeof(easy) / sizeof(easy[0])];
+	}
+	case 2:
+	{
+		char *medium[] = { "MEDIUM1", "MEDIUM2", "MEDIUM3" };
+		return medium[rand() % sizeof(medium) / sizeof(medium[0])];
+	}
+	case 3:
+	{
+		char *hard[] = { "HARD1", "HARD2", "HARD3" };
+		return hard[rand() % sizeof(hard) / sizeof(hard[0])];
+	}
+	default:
+		return "ERROR";
+	}
 }
