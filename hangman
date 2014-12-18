@@ -1,0 +1,45 @@
+int main(){
+	bool running = true;
+	int diff = 1;
+	while (running){
+		cout << "Welcome to Hangman++, type in the option number and hit Enter to select a menu option below:" << endl;
+		cout << "(1) Play Game" << endl
+			<< "(2) Set Difficulty" << endl
+			<< "(3) Scores" << endl
+			<< "(7) Press 7 anytime to Exit" << endl 
+			<< "---------------------------" << endl
+			<< "Option: ";
+		int option;
+		cin >> option;
+
+		switch (option)
+		{
+		case 1:
+		{
+			// run game
+			break;
+		}
+		case 2:
+		{
+			cout << "Choose difficulty" << endl
+				<< "(1) Easy" << endl
+				<< "(2) medium" << endl
+				<< "(3) hard" << endl;
+			cout << "Difficulty: ";
+			cin >> diff;
+			break;
+		}
+		case 3:
+		{
+			// scores
+			break;
+		}
+		case 7:
+			return 0;
+		default:
+			cout << "Unknown option: " << option << endl;
+			break;
+		}
+	}
+	return 0;
+}
