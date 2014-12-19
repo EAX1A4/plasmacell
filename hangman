@@ -2,7 +2,6 @@
 #include <cstring>
 #include <ctime>
 #include <fstream>
-#include <stdio.h>
 
 #define _PATH "INSERT PATH HERE" // Should be like: "c:/path/to/file.txt"
 
@@ -38,6 +37,7 @@ int main(){
 
 		int option;
 		cin >> option;
+		cout << "---------------------------" << endl;
 
 		switch (option)
 		{
@@ -65,7 +65,6 @@ int main(){
 				cout << stage[hp];
 				cout << endl;
 
-				cout << "secret = " << secret << endl;
 				cout << "Used characters: ";
 				int elm = 0;
 				while (usedch[elm] != '\0' && elm < 25){
@@ -87,6 +86,8 @@ int main(){
 				cin.clear();
 				cin.ignore();
 				cin >> ch;
+				if (ch == '7')
+					return 0;
 
 				if (islower(ch)) ch = toupper(ch);
 
@@ -131,12 +132,12 @@ int main(){
 						file.close();
 					}
 					else {
-						cout << "Couldn't open " << _PATH << endl;
+						cout << "Couldn't open \"" << _PATH << "\"" << endl;
 					}
 				}
 			}
 
-
+			cout << "---------------------------" << endl;
 			break;
 		}
 		case 2:
@@ -156,7 +157,7 @@ int main(){
 			ifstream file;
 			file.open(_PATH);
 			if (file){
-				cout << "Guessed words: " << endl;
+				cout << "Guessed words: " << endl << endl;
 				while (!file.eof()){
 					char line[100];
 					file >> line;
@@ -164,10 +165,9 @@ int main(){
 				}
 			}
 			else {
-				cout << "Couldn't open " << _PATH << endl;
+				cout << "Couldn't open \"" << _PATH << "\"" << endl;
 			}
-
-
+			cout << "---------------------------" << endl;
 			break;
 		}
 		case 7:
