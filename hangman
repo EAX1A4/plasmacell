@@ -1,6 +1,12 @@
+#include "stdafx.h"
+// START HERE
 #include <iostream>
 #include <cstring>
 #include <ctime>
+#include <fstream>
+#include <stdio.h>
+
+#define _PATH "C:/Users/vmN/plasma.txt"
 
 using namespace std;
 
@@ -51,12 +57,17 @@ int main(){
 				uInput[p] = '_'; // initialize all element in uInput except the last
 			}
 			uInput[p] = '\0'; // initialize the last element
-			int hp = 0; 
+			int hp = 0;
 
 			bool game = true;
 
 			// Playing the game
-			while (game && hp < sizeof(stage) / sizeof(stage[0]) - 1){ 
+			while (game && hp < sizeof(stage) / sizeof(stage[0]) - 1){
+				cls();
+				cout << stage[hp];
+				cout << endl;
+
+				cout << "secret = " << secret << endl;
 				cout << "Used characters: ";
 				int elm = 0;
 				while (usedch[elm] != '\0' && elm < 25){
@@ -72,7 +83,7 @@ int main(){
 					++el;
 				}
 				endl(cout);
-				
+
 				cout << "Guess: ";
 				char ch;
 				cin.clear();
@@ -81,9 +92,8 @@ int main(){
 
 				if (islower(ch)) ch = toupper(ch);
 
-				// HERE
-				bool found = false;
 
+				bool found = false;
 				for (int i = 0; i < strlen(secret); ++i){
 					if (secret[i] == ch){
 						uInput[i] = ch;
@@ -92,20 +102,22 @@ int main(){
 				}
 
 				if (!found){
+					bool isused = false;
+
 					int counter = 0;
-					while (usedch[counter] != '\0' && counter < 25){
+					while (counter < 25 && usedch[counter] != '\0'){
 						if (usedch[counter] == ch){
+							++hp;
 							break;
 						}
 						++counter;
 					}
-					usedch[counter] = ch;
-					++hp;
-				}
 
-				cls();
-				cout << stage[hp];
-				cout << endl;
+					if (!isused){
+						usedch[counter] = ch;
+						++hp;
+					}
+				}
 
 				int cmp = strcmp(secret, uInput);
 				if (!cmp){
@@ -113,6 +125,16 @@ int main(){
 					cout << "The word was: " << secret << endl;
 					cout << "---------------------------" << endl;
 					game = false;
+
+					ofstream file;
+					file.open(_PATH, ios::app);
+					if (file.is_open()){
+						file << secret << endl;
+						file.close();
+					}
+					else {
+						cout << "Couldn't open " << _PATH << endl;
+					}
 				}
 			}
 
@@ -132,10 +154,22 @@ int main(){
 			break;
 		}
 		case 3:
-		{
-			// scores
-			cls();
-			cout << "This feature is yet to be implemented!" << endl;
+		{			
+			ifstream file;
+			file.open(_PATH);
+			if (file){
+				cout << "Guessed words: " << endl;
+				while (!file.eof()){
+					char line[100];
+					file >> line;
+					cout << "\t" << line << endl;
+				}
+			}
+			else {
+				cout << "Couldn't open " << _PATH << endl;
+			}
+
+
 			break;
 		}
 		case 7:
@@ -153,22 +187,22 @@ char *chooseWord(int diff){
 	switch (diff) {
 	case 1:
 	{
-		char *easy[] = { "PLAY", "GAME", "STAY", "MAKE", 
-			"CAKE", "PLANE", "ABORT", 
+		char *easy[] = { "PLAY", "GAME", "STAY", "MAKE",
+			"CAKE", "PLANE", "ABORT",
 			"ACTOR", "CHAIR", "CYCLE" };
 		return easy[rand() % sizeof(easy) / sizeof(easy[0])];
 	}
 	case 2:
 	{
-		char *medium[] = { "GAMBLE", "PURGED", "AUNITE", "ZYGOTE", 
-			"WRENCH", "ABANDON", "APPROVE", 
+		char *medium[] = { "GAMBLE", "PURGED", "AUNITE", "ZYGOTE",
+			"WRENCH", "ABANDON", "APPROVE",
 			"BALLON", "CLUSTER", "EXPIRED" };
 		return medium[rand() % sizeof(medium) / sizeof(medium[0])];
 	}
 	case 3:
 	{
-		char *hard[] = { "BACKWARD", "BOUNDARY", "CHEMICAL", "INTRUDER", 
-			"ORNAMENT", "POSTPONED", "SCRAMBLED", 
+		char *hard[] = { "BACKWARD", "BOUNDARY", "CHEMICAL", "INTRUDER",
+			"ORNAMENT", "POSTPONED", "SCRAMBLED",
 			"TREASURED", "ZOOLOGIST", "APPALING" };
 		return hard[rand() % sizeof(hard) / sizeof(hard[0])];
 	}
