@@ -1,12 +1,10 @@
-#include "stdafx.h"
-// START HERE
 #include <iostream>
 #include <cstring>
 #include <ctime>
 #include <fstream>
 #include <stdio.h>
 
-#define _PATH "C:/Users/vmN/plasma.txt"
+#define _PATH "INSERT PATH HERE" // Should be like: "c:/path/to/file.txt"
 
 using namespace std;
 
