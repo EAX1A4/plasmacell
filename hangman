@@ -82,47 +82,79 @@ int main(){
 				endl(cout);
 
 				cout << "Guess: ";
-				char ch;
+				//char ch;
 				cin.clear();
 				cin.ignore();
+
+				char ch[12];
+				int order = 0;
+
 				cin >> ch;
-				if (ch == '7')
-					return 0;
+				while (ch[order] != '\0'){
 
-				if (islower(ch)) ch = toupper(ch);
+					if (ch[order] == '7') // ORDER HERE
+						return 0;
+
+					if (islower(ch[order])) ch[order] = toupper(ch[order]); // ORDER HERE
 
 
-				bool found = false;
-				for (int i = 0; i < strlen(secret); ++i){
-					if (secret[i] == ch){
-						uInput[i] = ch;
-						found = true;
-					}
-				}
-
-				if (!found){
-					bool isused = false;
-
-					int counter = 0;
-					while (counter < 25 && usedch[counter] != '\0'){
-						if (usedch[counter] == ch){
-							++hp;
-							break;
+					bool found = false;
+					for (int i = 0; i < strlen(secret); ++i){
+						if (secret[i] == ch[order]){ // ORDER HERE
+							uInput[i] = ch[order]; // ORDER HERE
+							found = true;
 						}
-						++counter;
 					}
 
-					if (!isused){
-						usedch[counter] = ch;
-						++hp;
+					if (!found){
+						bool isused = false;
+
+						int counter = 0;
+						while (counter < 25 && usedch[counter] != '\0'){
+							if (usedch[counter] == ch[order]){
+								isused = true;
+								break;
+						}
+							++counter;
+						}
+
+						if (!isused){
+							usedch[counter] = ch[order]; // ORDER HERE
+							++hp;
+						}
 					}
+
+					++order;
 				}
+				// END HERE
 
 				int cmp = strcmp(secret, uInput);
 				if (!cmp){
+					/* TEST START */
+
+					cls();
+					cout << stage[hp];
+					cout << endl;
+
+					cout << "Used characters: ";
+					int elm = 0;
+					while (usedch[elm] != '\0' && elm < 25){
+						cout << usedch[elm] << " ";
+						++elm;
+					}
+					endl(cout);
+
+					cout << "Word: ";
+					int el = 0;
+					while (el < strlen(secret)){
+						cout << uInput[el] << " ";
+						++el;
+					}
+
+					/* TEST END */
+					endl(cout);
 					cout << "You guessed it!" << endl;
 					cout << "The word was: " << secret << endl;
-					cout << "---------------------------" << endl;
 					game = false;
 
 					ofstream file;
@@ -134,7 +166,41 @@ int main(){
 					else {
 						cout << "Couldn't open \"" << _PATH << "\"" << endl;
 					}
+					cin.clear();
+					cin.ignore();
+					cout << "Enter to continue to menu: ";
+					cin.get();
 				}
+
+				if (hp >= sizeof(stage) / sizeof(stage[0]) - 1){
+					cls();
+					cout << stage[hp];
+					cout << endl;
+
+					cout << "Used characters: ";
+					int elm = 0;
+					while (usedch[elm] != '\0' && elm < 25){
+						cout << usedch[elm] << " ";
+						++elm;
+					}
+					endl(cout);
+
+					cout << "Word: ";
+					int el = 0;
+					while (el < strlen(secret)){
+						cout << uInput[el] << " ";
+						++el;
+					}
+					endl(cout);
+
+					cin.clear();
+					cin.ignore();
+
+					cout << "You lost!" << endl;
+					cout << "Press enter to continue to menu: ";
+					cin.get();
+				}
+
 			}
 
 			cout << "---------------------------" << endl;
@@ -153,7 +219,7 @@ int main(){
 			break;
 		}
 		case 3:
-		{			
+		{
 			ifstream file;
 			file.open(_PATH);
 			if (file){
