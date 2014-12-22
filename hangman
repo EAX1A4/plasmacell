@@ -3,7 +3,7 @@
 #include <ctime>
 #include <fstream>
 
-#define _PATH "C:/path/to/guessed.txt"
+#define _PATH "c:/path/to/guessed.txt"
 #define _EAS "c:/path/to/easy.txt"
 #define _MED "c:/path/to/medium.txt"
 #define _HARD "c:/path/to/hard.txt"
@@ -179,6 +179,11 @@ int main(){
 				cout << "Couldn't open \"" << _PATH << "\"" << endl;
 			}
 			cout << "---------------------------" << endl;
+			cin.clear();
+			cin.ignore();
+			cout << "Enter to continue to menu: ";
+			cin.get();
+			cls();
 			break;
 		}
 		case 7:
