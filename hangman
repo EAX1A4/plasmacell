@@ -3,12 +3,18 @@
 #include <ctime>
 #include <fstream>
 
-#define _PATH "INSERT PATH HERE" // Should be like: "c:/path/to/file.txt"
+#define _PATH "C:/path/to/guessed.txt"
+#define _EAS "c:/path/to/easy.txt"
+#define _MED "c:/path/to/medium.txt"
+#define _HARD "c:/path/to/hard.txt"
+
 
 using namespace std;
 
 void cls(){ for (int i = 0; i < 100; ++i) printf("\n"); }
 char *chooseWord(int diff);
+void printscene(char *stage, char *secret, char *usedch, char *uInput);
+char *GWFF(char *fPath);
 
 int main(){
 	// To randomize it
@@ -44,45 +50,31 @@ int main(){
 		case 1:
 		{
 			// Preparing the game
+			bool game = true;
 			char *secret = chooseWord(diff); // get the random word based on the difficulty
-			char uInput[12], usedch[26]; // uInput those char that mathces. usedch is those who did not 
-			// initialize all in usedch
-			for (int i = 0; i < 26; ++i){
-				usedch[i] = '\0';
+			if (secret == "ERROR"){
+				cin.clear();
+				cin.ignore();
+				cout << "Enter to continue to menu: ";
+				cin.get();
+				cls();
+				game = false;
 			}
+
+			char uInput[25], usedch[26] = { '\0' }; // uInput those char that mathces. usedch is those who did not 
+
 			int p = 0;
 			for (p; p < strlen(secret); ++p){ // for every character in secret
 				uInput[p] = '_'; // initialize all element in uInput except the last
 			}
+
 			uInput[p] = '\0'; // initialize the last element
 			int hp = 0;
 
-			bool game = true;
-
 			// Playing the game
 			while (game && hp < sizeof(stage) / sizeof(stage[0]) - 1){
-				cls();
-				cout << stage[hp];
-				cout << endl;
-
-				cout << "Used characters: ";
-				int elm = 0;
-				while (usedch[elm] != '\0' && elm < 25){
-					cout << usedch[elm] << " ";
-					++elm;
-				}
-				endl(cout);
-
-				cout << "Word: ";
-				int el = 0;
-				while (el < strlen(secret)){
-					cout << uInput[el] << " ";
-					++el;
-				}
-				endl(cout);
-
+				printscene(stage[hp], secret, usedch, uInput);
 				cout << "Guess: ";
-				//char ch;
 				cin.clear();
 				cin.ignore();
 
@@ -90,6 +82,7 @@ int main(){
 				int order = 0;
 
 				cin >> ch;
+
 				while (ch[order] != '\0'){
 
 					if (ch[order] == '7') // ORDER HERE
@@ -97,62 +90,32 @@ int main(){
 
 					if (islower(ch[order])) ch[order] = toupper(ch[order]); // ORDER HERE
 
-
-					bool found = false;
-					for (int i = 0; i < strlen(secret); ++i){
-						if (secret[i] == ch[order]){ // ORDER HERE
-							uInput[i] = ch[order]; // ORDER HERE
-							found = true;
+					char *pch;
+					pch = (char *)memchr(secret, ch[order], strlen(secret));
+					if (pch != NULL){
+						while (pch != NULL){
+							uInput[pch - secret] = ch[order];
+							pch = (char *)memchr(pch + 1, ch[order], strlen(pch + 1));
 						}
 					}
-
-					if (!found){
-						bool isused = false;
-
-						int counter = 0;
-						while (counter < 25 && usedch[counter] != '\0'){
-							if (usedch[counter] == ch[order]){
-								isused = true;
-								break;
+					else {
+						char *isused;
+						isused = (char *)memchr(usedch, ch[order], strlen(usedch));
+						if (isused != NULL){
+							break;
 						}
-							++counter;
-						}
-
-						if (!isused){
-							usedch[counter] = ch[order]; // ORDER HERE
+						else {
 							++hp;
+							usedch[strlen(usedch)] = ch[order];
 						}
 					}
-
 					++order;
 				}
-				// END HERE
 
 				int cmp = strcmp(secret, uInput);
-				if (!cmp){
-					/* TEST START */
+				if (!cmp && hp < 7){
+					printscene(stage[hp], secret, usedch, uInput);
 
-					cls();
-					cout << stage[hp];
-					cout << endl;
-
-					cout << "Used characters: ";
-					int elm = 0;
-					while (usedch[elm] != '\0' && elm < 25){
-						cout << usedch[elm] << " ";
-						++elm;
-					}
-					endl(cout);
-
-					cout << "Word: ";
-					int el = 0;
-					while (el < strlen(secret)){
-						cout << uInput[el] << " ";
-						++el;
-					}
-
-					/* TEST END */
-					endl(cout);
 					cout << "You guessed it!" << endl;
 					cout << "The word was: " << secret << endl;
 					game = false;
@@ -170,28 +133,11 @@ int main(){
 					cin.ignore();
 					cout << "Enter to continue to menu: ";
 					cin.get();
+					cls();
 				}
 
 				if (hp >= sizeof(stage) / sizeof(stage[0]) - 1){
-					cls();
-					cout << stage[hp];
-					cout << endl;
-
-					cout << "Used characters: ";
-					int elm = 0;
-					while (usedch[elm] != '\0' && elm < 25){
-						cout << usedch[elm] << " ";
-						++elm;
-					}
-					endl(cout);
-
-					cout << "Word: ";
-					int el = 0;
-					while (el < strlen(secret)){
-						cout << uInput[el] << " ";
-						++el;
-					}
-					endl(cout);
+					printscene(stage[hp], secret, usedch, uInput);
 
 					cin.clear();
 					cin.ignore();
@@ -199,11 +145,10 @@ int main(){
 					cout << "You lost!" << endl;
 					cout << "Press enter to continue to menu: ";
 					cin.get();
+					cls();
 				}
 
 			}
-
-			cout << "---------------------------" << endl;
 			break;
 		}
 		case 2:
@@ -248,29 +193,77 @@ int main(){
 
 
 char *chooseWord(int diff){
-	switch (diff) {
+	switch (diff)
+	{
 	case 1:
-	{
-		char *easy[] = { "PLAY", "GAME", "STAY", "MAKE",
-			"CAKE", "PLANE", "ABORT",
-			"ACTOR", "CHAIR", "CYCLE" };
-		return easy[rand() % sizeof(easy) / sizeof(easy[0])];
-	}
+		return GWFF(_EAS);
 	case 2:
-	{
-		char *medium[] = { "GAMBLE", "PURGED", "AUNITE", "ZYGOTE",
-			"WRENCH", "ABANDON", "APPROVE",
-			"BALLON", "CLUSTER", "EXPIRED" };
-		return medium[rand() % sizeof(medium) / sizeof(medium[0])];
-	}
+		return GWFF(_MED);
 	case 3:
-	{
-		char *hard[] = { "BACKWARD", "BOUNDARY", "CHEMICAL", "INTRUDER",
-			"ORNAMENT", "POSTPONED", "SCRAMBLED",
-			"TREASURED", "ZOOLOGIST", "APPALING" };
-		return hard[rand() % sizeof(hard) / sizeof(hard[0])];
-	}
+		return GWFF(_HARD);
 	default:
+		return "ERROR";
+	}
+}
+
+
+void printscene(char *stage, char *secret, char *usedch, char *uInput){
+	cls();
+	cout << stage;
+	cout << endl;
+
+	cout << "Used characters: ";
+	for (int i = 0; i < strlen(usedch); ++i) cout << usedch[i] << " ";
+	endl(cout);
+
+	cout << "Word: ";
+	for (int i = 0; i < strlen(secret); ++i) cout << uInput[i] << " ";
+	endl(cout);
+}
+
+char *GWFF(char *fPath){ // Get Word From File
+	ifstream file;
+	ifstream score;
+
+	file.open(fPath);
+	if (file.is_open()){
+		score.open(_PATH);
+		char *var = new char[12];
+		file >> var;
+
+		if (score.is_open()){
+			std::size_t size;
+			score.seekg(0, ios::end);
+			size = score.tellg();
+			char *MATCH = new char[size];
+			score.seekg(0, ios::beg);
+			score.read(MATCH, size);
+			score.close();
+
+			if (strstr(MATCH, var) == NULL){
+				delete MATCH;
+				return var;
+			}
+			else {
+				while (strstr(MATCH, var) != NULL){
+					if (file.eof()){
+						cout << "You ran out of words in this difficulty!" << endl;
+						return "ERROR";
+					}
+					else {
+						file >> var;
+					}
+				}
+				return var;
+			}
+		}
+		else {
+			cout << "Could not load scores!" << endl;
+			return "ERROR";
+		}
+	}
+	else {
+		cout << "Could not open file: " << fPath << endl;
 		return "ERROR";
 	}
 }
