@@ -11,16 +11,16 @@
 
 using namespace std;
 
-void cls(){ for (int i = 0; i < 100; ++i) printf("\n"); }
-char *chooseWord(int diff);
-void printscene(char *stage, char *secret, char *usedch, char *uInput);
-char *GWFF(char *fPath);
+void cls(){ for (int i = 0; i < 100; ++i) printf("\n"); } // To clear the screen
+char *chooseWord(int diff); // Get the word
+void printscene(char *stage, char *secret, char *usedch, char *uInput); // Print the screen
+char *GWFF(char *fPath); // Get Word From File
 
 int main(){
 	// To randomize it
 	srand(time(NULL));
 
-	// All the stages
+	// All the stages in a c-string array
 	char *stage[] = { " ",
 		"\n \n \n \n \n \n \n \n --------\0",
 		"\n |\n |\n |\n |\n |\n |\n |\n --------\0",
@@ -29,10 +29,8 @@ int main(){
 		"\n ________\n |  /   |\n | /\n |/\n |\n |\n |\n |\n --------\0",
 		"\n ________\n |  /   |\n | /    o\n |/    /|\\ \n |      |\n |     / \\\n |\n |\n --------\0" };
 
-
-	bool running = true;
 	int diff = 1; // difficulty default is easy
-	while (running){
+	while (true){ // A endless loop
 		cout << "Welcome to Hangman++, type in the option number and hit Enter to select a menu option below:" << endl;
 		cout << "(1) Play Game" << endl
 			<< "(2) Set Difficulty" << endl
@@ -43,16 +41,17 @@ int main(){
 
 		int option;
 		cin >> option;
+
 		cout << "---------------------------" << endl;
 
-		switch (option)
+		switch (option) // Switch depending on the input
 		{
 		case 1:
 		{
 			// Preparing the game
 			bool game = true;
 			char *secret = chooseWord(diff); // get the random word based on the difficulty
-			if (secret == "ERROR"){
+			if (secret == "ERROR"){ // If secret is equal to "ERROR", means there was an error
 				cin.clear();
 				cin.ignore();
 				cout << "Enter to continue to menu: ";
@@ -72,59 +71,61 @@ int main(){
 			int hp = 0;
 
 			// Playing the game
-			while (game && hp < sizeof(stage) / sizeof(stage[0]) - 1){
-				printscene(stage[hp], secret, usedch, uInput);
+			while (game && hp < 7){ // While you are not dead and haven't won
+				printscene(stage[hp], secret, usedch, uInput); // Print out the stage, used character, how many words have been guessed correct
 				cout << "Guess: ";
 				cin.clear();
 				cin.ignore();
 
-				char ch[12];
+				char ch[12]; // Input
 				int order = 0;
 
 				cin >> ch;
 
-				while (ch[order] != '\0'){
+				while (ch[order] != '\0'){ // '\0' is the last element in a c-string
 
-					if (ch[order] == '7') // ORDER HERE
+					if (ch[order] == '7') // If 7 is detected, the program will terminate itself
 						return 0;
 
-					if (islower(ch[order])) ch[order] = toupper(ch[order]); // ORDER HERE
+					// islower return false if it is not a small letter. If it is, we use toupper function to make it
+					if (islower(ch[order])) ch[order] = toupper(ch[order]); 
 
-					char *pch;
+					char *pch; // char pointer
+					// We use the memchr function to search in 'secret' for a inputted character.
 					pch = (char *)memchr(secret, ch[order], strlen(secret));
-					if (pch != NULL){
-						while (pch != NULL){
-							uInput[pch - secret] = ch[order];
-							pch = (char *)memchr(pch + 1, ch[order], strlen(pch + 1));
+					if (pch != NULL){ // Means there was a match
+						while (pch != NULL){ // Keeps running as long as there is a new match
+							uInput[pch - secret] = ch[order]; //pch point at the element that match, secret point to the first
+							pch = (char *)memchr(pch + 1, ch[order], strlen(pch + 1));  // New search
 						}
 					}
-					else {
-						char *isused;
-						isused = (char *)memchr(usedch, ch[order], strlen(usedch));
-						if (isused != NULL){
+					else { // There were no match
+						char *isused; // Holding the used characters
+						isused = (char *)memchr(usedch, ch[order], strlen(usedch)); // Search if it is already there
+						if (isused != NULL){  // If there is a match
 							break;
 						}
-						else {
-							++hp;
-							usedch[strlen(usedch)] = ch[order];
+						else { // If not
+							++hp; // Lose HP
+							usedch[strlen(usedch)] = ch[order]; // Copy character to c-string
 						}
 					}
-					++order;
+					++order; // New character in input
 				}
 
-				int cmp = strcmp(secret, uInput);
-				if (!cmp && hp < 7){
-					printscene(stage[hp], secret, usedch, uInput);
+				int cmp = strcmp(secret, uInput); // strcmp returns 0 if they match.
+				if (!cmp && hp < 7){ // If it returns 0 (0 also means false), and hp is lower than 7
+					printscene(stage[hp], secret, usedch, uInput); // Prints scene
 
 					cout << "You guessed it!" << endl;
 					cout << "The word was: " << secret << endl;
 					game = false;
 
-					ofstream file;
-					file.open(_PATH, ios::app);
-					if (file.is_open()){
-						file << secret << endl;
-						file.close();
+					ofstream score;
+					score.open(_PATH, ios::app); // Opens and place write pointer at end (ios::app)
+					if (score.is_open()){ // If it is open
+						score<< secret << endl; // Write to it
+						score.close(); // close
 					}
 					else {
 						cout << "Couldn't open \"" << _PATH << "\"" << endl;
@@ -136,8 +137,8 @@ int main(){
 					cls();
 				}
 
-				if (hp >= sizeof(stage) / sizeof(stage[0]) - 1){
-					printscene(stage[hp], secret, usedch, uInput);
+				if (hp >= 6){ // Means you are dead
+					printscene(stage[hp], secret, usedch, uInput); // print scene
 
 					cin.clear();
 					cin.ignore();
@@ -165,14 +166,14 @@ int main(){
 		}
 		case 3:
 		{
-			ifstream file;
-			file.open(_PATH);
-			if (file){
+			ifstream score;
+			score.open(_PATH);
+			if (score){
 				cout << "Guessed words: " << endl << endl;
-				while (!file.eof()){
+				while (!score.eof()){ // While we are not at the (E)nd (O)f the (F)ile
 					char line[100];
-					file >> line;
-					cout << "\t" << line << endl;
+					score >> line; // Read from file into line
+					cout << "\t" << line << endl; // print out with a tabular
 				}
 			}
 			else {
@@ -201,11 +202,11 @@ char *chooseWord(int diff){
 	switch (diff)
 	{
 	case 1:
-		return GWFF(_EAS);
+		return GWFF(_EAS); // Return the returned from GGFF
 	case 2:
-		return GWFF(_MED);
+		return GWFF(_MED); // ..
 	case 3:
-		return GWFF(_HARD);
+		return GWFF(_HARD); // ..
 	default:
 		return "ERROR";
 	}
@@ -213,15 +214,17 @@ char *chooseWord(int diff){
 
 
 void printscene(char *stage, char *secret, char *usedch, char *uInput){
-	cls();
-	cout << stage;
+	cls(); // Clears the screen
+	cout << stage; //Prints out the stage level
 	cout << endl;
 
 	cout << "Used characters: ";
+	// Seperate each character in usedch array with a space
 	for (int i = 0; i < strlen(usedch); ++i) cout << usedch[i] << " ";
 	endl(cout);
 
 	cout << "Word: ";
+	// Seperate each cahacter in uInput array with a space
 	for (int i = 0; i < strlen(secret); ++i) cout << uInput[i] << " ";
 	endl(cout);
 }
@@ -233,30 +236,30 @@ char *GWFF(char *fPath){ // Get Word From File
 	file.open(fPath);
 	if (file.is_open()){
 		score.open(_PATH);
-		char *var = new char[12];
-		file >> var;
+		char *var = new char[12]; // Dynamically allocate new c-string in heap memory
+		file >> var; // Reads into this new allocated memory
 
-		if (score.is_open()){
-			std::size_t size;
-			score.seekg(0, ios::end);
-			size = score.tellg();
-			char *MATCH = new char[size];
-			score.seekg(0, ios::beg);
-			score.read(MATCH, size);
-			score.close();
+		if (score.is_open()){ // If score file is open
+			std::size_t size; // Stores the position
+			score.seekg(0, ios::end); // Seeks to the end of the file
+			size = score.tellg(); // Get position
+			char *MATCH = new char[size]; // New dynamic allocated c-string in heap memory
+			score.seekg(0, ios::beg); // Seeks to the beginning of the file
+			score.read(MATCH, size); // Read the entire file into MATCH
+			score.close(); // close file
 
-			if (strstr(MATCH, var) == NULL){
-				delete MATCH;
+			if (strstr(MATCH, var) == NULL){ // strstr returns NULL if it cannot find argument2 in argument1
+				delete MATCH; // When you dynamically allocate memory, you have to deallocate it
 				return var;
 			}
 			else {
-				while (strstr(MATCH, var) != NULL){
-					if (file.eof()){
+				while (strstr(MATCH, var) != NULL){ // Means it found a match in the score file
+					if (file.eof()){ // Means we have ran out of words
 						cout << "You ran out of words in this difficulty!" << endl;
 						return "ERROR";
 					}
 					else {
-						file >> var;
+						file >> var; // Reads a new words into var
 					}
 				}
 				return var;
