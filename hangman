@@ -71,7 +71,7 @@ int main(){
 			int hp = 0;
 
 			// Playing the game
-			while (game && hp < 7){ // While you are not dead and haven't won
+			while (game && hp < 6){ // While you are not dead and haven't won
 				printscene(stage[hp], secret, usedch, uInput); // Print out the stage, used character, how many words have been guessed correct
 				cout << "Guess: ";
 				cin.clear();
@@ -88,7 +88,7 @@ int main(){
 						return 0;
 
 					// islower return false if it is not a small letter. If it is, we use toupper function to make it
-					if (islower(ch[order])) ch[order] = toupper(ch[order]); 
+					if (islower(ch[order])) ch[order] = toupper(ch[order]);
 
 					char *pch; // char pointer
 					// We use the memchr function to search in 'secret' for a inputted character.
@@ -124,7 +124,7 @@ int main(){
 					ofstream score;
 					score.open(_PATH, ios::app); // Opens and place write pointer at end (ios::app)
 					if (score.is_open()){ // If it is open
-						score<< secret << endl; // Write to it
+						score << secret << endl; // Write to it
 						score.close(); // close
 					}
 					else {
